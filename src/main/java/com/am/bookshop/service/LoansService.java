@@ -5,10 +5,14 @@ import com.am.bookshop.entity.loans.LoansModel;
 import com.am.bookshop.repository.BookRepository;
 import com.am.bookshop.repository.LoansRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class LoansService {
@@ -21,7 +25,7 @@ public class LoansService {
         this.loansRepository = loansRepository;
     }
 
-    public boolean loanBook(String bookId, String userId) {
+    public ResponseEntity<String> loanBook(String bookId, String userId) {
         Optional<BookModel> bookOpt = bookRepository.findById(bookId);
 
         if (bookOpt.isPresent() && bookOpt.get().isDisponibilidad()) {
@@ -34,12 +38,13 @@ public class LoansService {
             loan.setUserId(userId);
             loan.setPrestarFecha(new Date());
             loansRepository.save(loan);
-            return true;
+
+            return ResponseEntity.ok("Libro Prestado");
         }
-        return false;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El libro no está disponible o no existe");
     }
 
-    public boolean returnDate(String bookId, String userId) {
+    public ResponseEntity<String> returnDate(String bookId, String userId) {
         Optional<BookModel> bookOpt = bookRepository.findById(bookId);
 
         if (bookOpt.isPresent()) {
@@ -53,11 +58,12 @@ public class LoansService {
                 loan.setDevolverFecha(new Date());
                 loansRepository.save(loan);
 
-                return true;
+                return ResponseEntity.ok("Libro Devuelto");
             } else {
-                return false;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("No se encontró el préstamo para este libro y usuario");
             }
         }
-        return false;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El libro no existe");
     }
 }

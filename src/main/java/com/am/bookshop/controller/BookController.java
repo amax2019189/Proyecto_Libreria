@@ -63,15 +63,15 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable("id") String id) {
+    public ResponseEntity<String> deleteBook(@PathVariable("id") String id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().iterator().next().getAuthority();
 
         if (role.equals("ROLE_ADMIN")) {
             bookService.deleteBook(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok("Libro Eliminado Correctamente");
         } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso Denegado: No tienes permiso para eliminar libros.");
         }
     }
 }

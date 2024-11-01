@@ -18,30 +18,28 @@ public class LoansController {
     public LoansController(LoansService loansService) { this.loansService = loansService; }
 
     @PostMapping("/prestar/{id}")
-    public ResponseEntity<Void> prestar(@PathVariable("id") String id) {
+    public ResponseEntity<String> prestar(@PathVariable("id") String id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().iterator().next().getAuthority();
         String userId = auth.getName();
 
         if (role.equals("ROLE_CLIENT") || role.equals("ROLE_ADMIN")) {
-            boolean loan = loansService.loanBook(id, userId);
-            return loan ? new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return loansService.loanBook(id, userId);
         } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("No tienes permiso para realizar esta acción", HttpStatus.FORBIDDEN);
         }
     }
 
     @PostMapping("/devolver/{id}")
-    public ResponseEntity<Void> devolver(@PathVariable("id") String id) {
+    public ResponseEntity<String> devolver(@PathVariable("id") String id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String role = auth.getAuthorities().iterator().next().getAuthority();
         String userId = auth.getName();
 
         if (role.equals("ROLE_CLIENT") || role.equals("ROLE_ADMIN")) {
-            boolean devuelto = loansService.returnDate(id, userId);
-            return devuelto ? new ResponseEntity<>(HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return loansService.returnDate(id, userId);
         } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("No tienes permiso para realizar esta acción", HttpStatus.FORBIDDEN);
         }
     }
 }
